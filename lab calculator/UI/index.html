@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Calculator</title>
+    <link href="https://fonts.googleapis.com/css?family=Kanit&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<style>
+    * {
+        font-family: 'Helvetica', sans-serif;
+    }
+
+    .btn-secondary {
+        background-color: #b3dfd2;
+        color: #212529;
+        border-color: #b3dfd2;
+    }
+
+    .btn-secondary:hover {
+        background-color: #b3dfd2;
+        color: #212529;
+        border-color: #b3dfd2;
+    }
+
+    .btn-secondary:active {
+        background-color: #b3dfd2;
+        color: #212529;
+        border-color: #b3dfd2;
+    }
+
+    .btn-secondary:focus {
+        background-color: #b3dfd2;
+        color: #212529;
+        border-color: #b3dfd2;
+    }
+
+    input {
+        text-align: right;
+        margin-bottom: 20px;
+    }
+    
+</style>
+<body>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    Calculator
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="result" placeholder="0" readonly>
+                    </div>
+                    <div class="btn-group d-flex mb-3" role="group">
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('7')">7</button>
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('8')">8</button>
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('9')">9</button>
+                        <button type="button" class="btn btn-secondary" onclick="operatorClick('/')">/</button>
+                    </div>
+                    <div class="btn-group d-flex mb-3" role="group">
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('4')">4</button>
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('5')">5</button>
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('6')">6</button>
+                        <button type="button" class="btn btn-secondary" onclick="operatorClick('*')">*</button>
+                    </div>
+                    <div class="btn-group d-flex mb-3" role="group">
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('1')">1</button>
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('2')">2</button>
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('3')">3</button>
+                        <button type="button" class="btn btn-secondary" onclick="operatorClick('-')">-</button>
+                    </div>
+                    <div class="btn-group d-flex mb-3" role="group">
+                        <button type="button" class="btn btn-secondary" onclick="numberClick('0')">0</button>
+                        <button type="button" class="btn btn-secondary" onclick="operatorClick('+')">+</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearResult()">C</button>
+                        <button type="button" class="btn btn-secondary" onclick="calculate()">=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var result = 0;
+    var operator = '';
+    var number = 0;
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: false,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    function numberClick(number) {
+        var result = $('#result').val();
+        if (result == '+' || result == '-' || result == '*' || result == '/' || result == '0') {
+            $('#result').val(number);
+            Toast.fire({
+                icon: 'warning',
+                title: number
+            })
+        } else {
+            $('#result').val(result + number);
+            Toast.fire({
+                icon: 'warning',
+                title: result + number
+            })
+        }
+    }
+
+    function operatorClick(op) {
+        operator = op;
+        number = $('#result').val();
+        $('#result').val(op);
+        Toast.fire({
+            icon: 'warning',
+            title: op
+        })
+    }
+
+    function clearResult() {
+        $('#result').val('0');
+        Toast.fire({
+            icon: 'info',
+            title: 'start'
+        })
+    }
+
+    function calculate() {
+        var result = $('#result').val();
+        data = {
+            'a': parseInt(number),
+            'b': parseInt(result),
+            'operator': operator
+        }
+        $.ajax({
+            url: 'http://127.0.0.1:5000/calculate',
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function (data) {
+                $('#result').val(data);
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Result: ' + number + operator + result + ' = ' + data
+                })
+            },
+            error: function (data) {
+                $('#result').val('Error');
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Error'
+                })
+            }
+        });
+    }
+</script>
+</html>
